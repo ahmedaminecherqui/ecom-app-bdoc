@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ma.emsi.cherqui.billingservice.entities.ProductItem;
+import ma.emsi.cherqui.billingservice.model.Customer;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,4 +25,7 @@ public class Bill {
     private long customerId;
     @OneToMany(mappedBy = "bill")
     private List<ProductItem> ProductItems = new ArrayList<>();
+    @Transient
+    private Customer customer;
+
 }
