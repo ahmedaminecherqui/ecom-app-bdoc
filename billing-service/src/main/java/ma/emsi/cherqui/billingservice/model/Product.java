@@ -6,9 +6,10 @@ import lombok.Data;
 
 @Entity
 @Data
-public class Customer {
+public class Product {
     @Id
     private Long id;
     private String name;
-    private String email;
+    private double price;
+    private int quantity;
 }
