@@ -1,4 +1,4 @@
 package ma.emsi.cherqui.billingservice.model;
 
-public class Product {
+public class ProductItem {
 }
