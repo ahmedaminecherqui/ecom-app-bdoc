@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import java.util.UUID;
 
 @SpringBootApplication
+@EnableDiscoveryClient
 public class InventoryServiceApplication {
 
     public static void main(String[] args) {
