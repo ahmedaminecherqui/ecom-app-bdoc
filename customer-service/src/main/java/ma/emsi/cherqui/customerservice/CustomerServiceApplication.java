@@ -1,14 +1,18 @@
 package ma.emsi.cherqui.customerservice;
 
+import ma.emsi.cherqui.customerservice.config.CustomerConfigParams;
 import ma.emsi.cherqui.customerservice.entities.Customer;
 import ma.emsi.cherqui.customerservice.repository.CustomerRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
 
 @SpringBootApplication
+@EnableConfigurationProperties(CustomerConfigParams.class)
 public class CustomerServiceApplication {
 
     public static void main(String[] args) {
