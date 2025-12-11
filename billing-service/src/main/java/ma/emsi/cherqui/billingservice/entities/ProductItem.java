@@ -17,7 +17,7 @@ public class ProductItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private long productId;
+    private String productId;
     @ManyToOne
     private Bill bill;
     private int quantity;
