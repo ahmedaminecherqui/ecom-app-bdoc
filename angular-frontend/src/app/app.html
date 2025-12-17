@@ -1,29 +1,65 @@
-<div class="app-container">
-  <header class="navbar">
-    <div class="logo">E-Com Backend Docs</div>
-    <div class="user-actions">
-      <div *ngIf="isLoggedIn; else loginBlock" class="logged-in">
-        <span class="welcome-msg">Welcome, {{ userProfile?.username }}</span>
-        <button (click)="logout()" class="btn btn-logout">Logout</button>
+<div class="app-container" *ngIf="!loading; else loadingTpl">
+  <!-- Sidebar (Visible only when logged in) -->
+  <aside class="sidebar" *ngIf="isLoggedIn" [class.collapsed]="sidebarCollapsed">
+    <div class="sidebar-header">
+      <div class="logo" *ngIf="!sidebarCollapsed">E-Com Docs</div>
+      <div class="logo-icon" *ngIf="sidebarCollapsed">EC</div>
+      <button class="btn-toggle" (click)="toggleSidebar()">
+        <span *ngIf="!sidebarCollapsed">«</span>
+        <span *ngIf="sidebarCollapsed">»</span>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <a routerLink="/products" routerLinkActive="active" class="nav-item">
+        <i class="icon">📦</i> <span *ngIf="!sidebarCollapsed">Products</span>
+      </a>
+      <a routerLink="/customers" routerLinkActive="active" class="nav-item">
+        <i class="icon">👥</i> <span *ngIf="!sidebarCollapsed">Customers</span>
+      </a>
+      <a routerLink="/bills" routerLinkActive="active" class="nav-item">
+        <i class="icon">📄</i> <span *ngIf="!sidebarCollapsed">Bills</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info" *ngIf="!sidebarCollapsed">
+        <span class="username">{{ userProfile?.username }}</span>
       </div>
-      <ng-template #loginBlock>
-        <button (click)="login()" class="btn btn-login" style="margin-right: 10px;">Login</button>
-        <button (click)="register()" class="btn btn-login" style="background: #e91e63; color: white;">Register</button>
-      </ng-template>
+      <button (click)="logout()" class="btn-logout" [title]="sidebarCollapsed ? 'Logout' : ''">
+        <span *ngIf="sidebarCollapsed">🚪</span>
+        <span *ngIf="!sidebarCollapsed">Logout</span>
+      </button>
     </div>
-  </header>
+  </aside>
 
-  <main class="content">
-    <router-outlet></router-outlet>
+  <!-- Main Content Area -->
+  <main class="main-content" [class.full-width]="!isLoggedIn" [class.collapsed-sidebar]="sidebarCollapsed">
+    <!-- Top Bar (Only for Guest or Mobile) -->
+    <header class="top-bar" *ngIf="!isLoggedIn">
+      <div class="logo">E-Com Portal</div>
+      <div class="auth-buttons">
+        <button (click)="login()" class="btn btn-primary">Login</button>
+        <button (click)="register()" class="btn btn-secondary">Register</button>
+      </div>
+    </header>
 
-    <div *ngIf="!isLoggedIn" class="guest-welcome">
-      <h2>Welcome to the E-Commerce Portal</h2>
-      <p>Please login to access the application.</p>
-    </div>
-    <div *ngIf="isLoggedIn" class="dashboard">
-      <h2>Dashboard</h2>
-      <p>You are successfully authenticated via Keycloak.</p>
-      <!-- Future components will be loaded here via router -->
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+
+      <!-- Guest Landing Page -->
+      <div *ngIf="!isLoggedIn" class="landing-hero">
+        <h1>Welcome to E-Com Microservices</h1>
+        <p>Please login to manage products, customers, and bills.</p>
+        <div class="hero-actions">
+          <button (click)="login()" class="btn btn-large">Get Started</button>
+        </div>
+      </div>
     </div>
   </main>
 </div>
+
+<ng-template #loadingTpl>
+  <div class="loading-screen">
+    <div class="spinner"></div>
+    <p>Loading Application...</p>
+  </div>
+</ng-template>

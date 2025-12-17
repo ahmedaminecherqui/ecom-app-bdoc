@@ -1,6 +1,7 @@
 import { ApplicationConfig, APP_INITIALIZER, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { KeycloakService, KeycloakAngularModule } from 'keycloak-angular';
+import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { KeycloakService, KeycloakAngularModule, KeycloakBearerInterceptor } from 'keycloak-angular';
 
 import { routes } from './app.routes';
 
@@ -14,7 +15,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
       },
       initOptions: {
         onLoad: 'check-sso',
-        silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html'
+        checkLoginIframe: false
       }
     });
 }
@@ -22,12 +23,18 @@ function initializeKeycloak(keycloak: KeycloakService) {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
+    provideHttpClient(withInterceptorsFromDi()),
     importProvidersFrom(KeycloakAngularModule),
     {
       provide: APP_INITIALIZER,
       useFactory: initializeKeycloak,
       multi: true,
       deps: [KeycloakService]
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: KeycloakBearerInterceptor,
+      multi: true
     }
   ]
 };

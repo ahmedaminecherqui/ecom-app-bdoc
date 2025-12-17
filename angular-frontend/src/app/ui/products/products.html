@@ -1,0 +1,18 @@
+<div class="products-container">
+    <h2>Product Catalogue</h2>
+
+    <div class="product-grid">
+        <div *ngFor="let product of products" class="product-card">
+            <div class="card-content">
+                <h3>{{ product.name }}</h3>
+                <p class="price">{{ product.price | currency:'USD' }}</p>
+                <p class="quantity">Available: {{ product.quantity }}</p>
+                <button class="btn-buy">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="products.length === 0" class="no-products">
+        <p>No products available or loading...</p>
+    </div>
+</div>
