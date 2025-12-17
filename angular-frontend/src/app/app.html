@@ -1,0 +1,29 @@
+<div class="app-container">
+  <header class="navbar">
+    <div class="logo">E-Com Backend Docs</div>
+    <div class="user-actions">
+      <div *ngIf="isLoggedIn; else loginBlock" class="logged-in">
+        <span class="welcome-msg">Welcome, {{ userProfile?.username }}</span>
+        <button (click)="logout()" class="btn btn-logout">Logout</button>
+      </div>
+      <ng-template #loginBlock>
+        <button (click)="login()" class="btn btn-login" style="margin-right: 10px;">Login</button>
+        <button (click)="register()" class="btn btn-login" style="background: #e91e63; color: white;">Register</button>
+      </ng-template>
+    </div>
+  </header>
+
+  <main class="content">
+    <router-outlet></router-outlet>
+
+    <div *ngIf="!isLoggedIn" class="guest-welcome">
+      <h2>Welcome to the E-Commerce Portal</h2>
+      <p>Please login to access the application.</p>
+    </div>
+    <div *ngIf="isLoggedIn" class="dashboard">
+      <h2>Dashboard</h2>
+      <p>You are successfully authenticated via Keycloak.</p>
+      <!-- Future components will be loaded here via router -->
+    </div>
+  </main>
+</div>

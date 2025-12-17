@@ -4,6 +4,11 @@ server:
 spring:
   main:
     web-application-type: reactive
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/ecom-realm
 
   cloud:
     gateway:
