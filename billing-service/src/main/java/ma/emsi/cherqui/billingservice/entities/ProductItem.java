@@ -19,6 +19,7 @@ public class ProductItem {
     private Long id;
     private String productId;
     @ManyToOne
+    @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.WRITE_ONLY)
     private Bill bill;
     private int quantity;
     private double unitPrice;

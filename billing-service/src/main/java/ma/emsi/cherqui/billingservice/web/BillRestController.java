@@ -22,11 +22,12 @@ public class BillRestController {
     private CustomerRestClient customerRestClient;
 
     @GetMapping(path = "/bills/{id}")
-    public Bill getBill(@PathVariable Long id){
-        Bill bill = billRepository.findById(id).get();
+    public Bill getBill(@PathVariable(name = "id") Long id) {
+        Bill bill = billRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Bill not found with ID: " + id));
         bill.setCustomer(customerRestClient.findCustomerById(bill.getCustomerId()));
         bill.getProductItems().forEach(item -> {
-            item.getProductId();
+            item.setProduct(productRestClient.getProductById(item.getProductId()));
         });
         return bill;
     }

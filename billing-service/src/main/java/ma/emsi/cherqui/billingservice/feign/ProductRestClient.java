@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "inventory-service")
 public interface ProductRestClient {
     @GetMapping("/api/products/{id}")
-    public Product getProductById(String id);
+    public Product getProductById(@PathVariable("id") String id);
 
     @GetMapping("/api/products")
     PagedModel<Product> findAllProducts();
