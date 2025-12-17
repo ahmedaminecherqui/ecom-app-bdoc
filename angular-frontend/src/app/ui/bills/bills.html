@@ -1,0 +1,45 @@
+<div class="bills-container">
+    <h2>Orders & Bills</h2>
+
+    <div class="bills-list">
+        <div *ngFor="let bill of bills" class="bill-card">
+            <div class="bill-header" (click)="viewDetails(bill)">
+                <div class="bill-id">Order #{{ bill.id }}</div>
+                <div class="bill-date">{{ bill.billingDate | date:'mediumDate' }}</div>
+                <div class="bill-customer">Customer ID: {{ bill.customerID }}</div>
+                <div class="bill-action">
+                    <span class="icon" *ngIf="selectedBill !== bill">👇</span>
+                    <span class="icon" *ngIf="selectedBill === bill">👆</span>
+                </div>
+            </div>
+
+            <div class="bill-details" *ngIf="selectedBill === bill">
+                <h4>Order Items</h4>
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Item ID</th>
+                            <th>Product ID</th>
+                            <th>Price</th>
+                            <th>Qty</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of bill.productItems">
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.productID }}</td>
+                            <td>{{ item.price | currency:'USD' }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ (item.price * item.quantity) | currency:'USD' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div *ngIf="bills.length === 0" class="no-bills">
+            <p>No bills found.</p>
+        </div>
+    </div>
+</div>

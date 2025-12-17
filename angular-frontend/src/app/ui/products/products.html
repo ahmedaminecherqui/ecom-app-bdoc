@@ -1,18 +1,38 @@
 <div class="products-container">
     <h2>Product Catalogue</h2>
 
-    <div class="product-grid">
+    <div class="product-grid" *ngIf="products$ | async as products; else loading">
         <div *ngFor="let product of products" class="product-card">
             <div class="card-content">
                 <h3>{{ product.name }}</h3>
                 <p class="price">{{ product.price | currency:'USD' }}</p>
                 <p class="quantity">Available: {{ product.quantity }}</p>
-                <button class="btn-buy">Add to Cart</button>
+
+                <button class="btn-buy" (click)="addToCart(product)">Add to Cart</button>
+
+                <!-- Added to Cart Feedback Pill -->
+                <div class="cart-feedback" *ngIf="getCartCount(product) > 0">
+                    <span class="check-icon">✓</span>
+                    <span class="feedback-text">
+                        Added to Cart
+                        <span *ngIf="getCartCount(product) > 1" class="count-badge">* {{ getCartCount(product) }}</span>
+                    </span>
+                </div>
             </div>
+        </div>
+
+        <div *ngIf="products.length === 0" class="no-products" style="grid-column: 1 / -1;">
+            <p>No products available.</p>
         </div>
     </div>
 
-    <div *ngIf="products.length === 0" class="no-products">
-        <p>No products available or loading...</p>
-    </div>
+    <ng-template #loading>
+        <div class="no-products">
+            <p>Loading products...</p>
+        </div>
+    </ng-template>
+
+    <!-- We handle empty state inside the product-grid logic if needed, or check length if observable emits -->
+
+
 </div>

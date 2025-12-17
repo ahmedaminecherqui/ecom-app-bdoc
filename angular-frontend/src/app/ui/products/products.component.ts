@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Observable } from 'rxjs';
 import { Product } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-products',
@@ -10,18 +12,22 @@ import { ProductService } from '../../services/product.service';
   styleUrl: './products.css'
 })
 export class ProductsComponent implements OnInit {
-  products: Product[] = [];
+  products$: Observable<Product[]> | null = null;
 
-  constructor(private productService: ProductService) { }
+  constructor(
+    private productService: ProductService,
+    private cartService: CartService
+  ) { }
 
   ngOnInit(): void {
-    this.productService.getAllProducts().subscribe({
-      next: (data) => {
-        this.products = data;
-      },
-      error: (err) => {
-        console.error('Error fetching products', err);
-      }
-    });
+    this.products$ = this.productService.getAllProducts();
+  }
+
+  addToCart(product: Product) {
+    this.cartService.addToCart(product);
+  }
+
+  getCartCount(product: Product): number {
+    return this.cartService.getQuantity(product.id);
   }
 }

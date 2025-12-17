@@ -1,0 +1,29 @@
+<div class="customers-container">
+    <h2>Customers Registry</h2>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let customer of customers">
+                    <td>#{{ customer.id }}</td>
+                    <td>{{ customer.name }}</td>
+                    <td>{{ customer.email }}</td>
+                    <td>
+                        <button class="btn-action">Edit</button>
+                    </td>
+                </tr>
+                <tr *ngIf="customers.length === 0">
+                    <td colspan="4" class="no-data">No customers found.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

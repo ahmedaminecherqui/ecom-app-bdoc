@@ -19,6 +19,9 @@
       <a routerLink="/bills" routerLinkActive="active" class="nav-item">
         <i class="icon">📄</i> <span *ngIf="!sidebarCollapsed">Bills</span>
       </a>
+      <a routerLink="/cart" routerLinkActive="active" class="nav-item">
+        <i class="icon">🛒</i> <span *ngIf="!sidebarCollapsed">Cart</span>
+      </a>
     </nav>
     <div class="sidebar-footer">
       <div class="user-info" *ngIf="!sidebarCollapsed">

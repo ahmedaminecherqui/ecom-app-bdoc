@@ -78,6 +78,48 @@ h3 {
     opacity: 0.9;
 }
 
+.cart-feedback {
+    margin-top: 0.8rem;
+    background: rgba(16, 185, 129, 0.1);
+    /* Green tint */
+    border: 1px solid #10B981;
+    color: #10B981;
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    animation: fadeIn 0.3s ease;
+}
+
+.check-icon {
+    font-weight: bold;
+}
+
+.count-badge {
+    background: #10B981;
+    color: #0f172a;
+    border-radius: 12px;
+    padding: 0 6px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .no-products {
     text-align: center;
     color: rgba(255, 255, 255, 0.5);
