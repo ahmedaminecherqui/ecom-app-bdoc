@@ -23,37 +23,61 @@ import java.util.Random;
 @SpringBootApplication
 public class BillingServiceApplication {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
         SpringApplication.run(BillingServiceApplication.class, args);
 
-	}
+    }
 
     @Bean
-    CommandLineRunner commandLineRunner(BillRepository billRepository
-    , ProductItemRepository productItemRepository, CustomerRestClient customerRestClient
-    ,ProductRestClient  productRestClient ) {
+    CommandLineRunner commandLineRunner(BillRepository billRepository, ProductItemRepository productItemRepository,
+            CustomerRestClient customerRestClient, ProductRestClient productRestClient) {
 
         return args -> {
-            Collection<Customer> customers = customerRestClient.findAllCustomers().getContent();
-            Collection<Product> products = productRestClient.findAllProducts().getContent();
+            // Retry logic to handle race conditions where dependent services are not yet
+            // ready
+            int maxRetries = 10;
+            int retryDelay = 5000; // 5 seconds
 
-            customers.forEach(customer -> {
-                Bill bill = Bill.builder().
-                        customerId(customer.getId())
-                        .build();
-                billRepository.save(bill);
-                products.forEach(product -> {
-                    ProductItem productItem = ProductItem.builder()
-                            .bill(bill)
-                            .productId(product.getId())
-                            .quantity(new Random().nextInt(10))
-                            .unitPrice(product.getPrice())
-                            .build();
-                    productItemRepository.save(productItem);
-                });
+            for (int i = 0; i < maxRetries; i++) {
+                try {
+                    Collection<Customer> customers = customerRestClient.findAllCustomers().getContent();
+                    Collection<Product> products = productRestClient.findAllProducts().getContent();
 
-            });
+                    customers.forEach(customer -> {
+                        Bill bill = Bill.builder().customerId(customer.getId())
+                                .build();
+                        billRepository.save(bill);
+                        products.forEach(product -> {
+                            ProductItem productItem = ProductItem.builder()
+                                    .bill(bill)
+                                    .productId(product.getId())
+                                    .quantity(new Random().nextInt(10))
+                                    .unitPrice(product.getPrice())
+                                    .build();
+                            productItemRepository.save(productItem);
+                        });
+                    });
+
+                    System.out.println("Billing service data seeded successfully!");
+                    break; // Success, exit loop
+
+                } catch (Exception e) {
+                    System.err.println(
+                            "Attempt " + (i + 1) + "/" + maxRetries + " failed to seed data: " + e.getMessage());
+                    if (i == maxRetries - 1) {
+                        System.err
+                                .println("Giving up on data seeding. Billing service may handle requests incorrectly.");
+                    } else {
+                        System.out.println("Retrying in " + (retryDelay / 1000) + " seconds...");
+                        try {
+                            Thread.sleep(retryDelay);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
+            }
         };
 
     }
