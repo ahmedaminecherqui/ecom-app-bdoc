@@ -1,6 +1,5 @@
 package ma.emsi.cherqui.inventoryservice;
 
-
 import ma.emsi.cherqui.inventoryservice.entities.Product;
 import ma.emsi.cherqui.inventoryservice.repository.ProductRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -8,6 +7,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
+import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 import java.util.UUID;
 
@@ -22,30 +24,26 @@ public class InventoryServiceApplication {
     @Bean
     CommandLineRunner commandLineRunner(ProductRepository productRepository) {
         return args -> {
-            productRepository.save(Product.builder().
-                    id(UUID.randomUUID().toString()).
-                    name("computer").
-                    price(3200).
-                    quantity(10).
-                    build());
-            productRepository.save(Product.builder().
-                    id(UUID.randomUUID().toString()).
-                    name("iphone").
-                    price(1200).
-                    quantity(100).
-                    build());
-            productRepository.save(Product.builder().
-                    id(UUID.randomUUID().toString()).
-                    name("tablet").
-                    price(4350).
-                    quantity(35).
-                    build());
+            productRepository.save(Product.builder().id(UUID.randomUUID().toString()).name("computer").price(3200)
+                    .quantity(10).build());
+            productRepository.save(Product.builder().id(UUID.randomUUID().toString()).name("iphone").price(1200)
+                    .quantity(100).build());
+            productRepository.save(
+                    Product.builder().id(UUID.randomUUID().toString()).name("tablet").price(4350).quantity(35).build());
 
-            productRepository.findAll().forEach(p->{
+            productRepository.findAll().forEach(p -> {
                 System.out.println(p.toString());
             });
         };
     }
 
-
+    @Bean
+    public RepositoryRestConfigurer repositoryRestConfigurer() {
+        return new RepositoryRestConfigurer() {
+            @Override
+            public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
+                config.exposeIdsFor(Product.class);
+            }
+        };
+    }
 }

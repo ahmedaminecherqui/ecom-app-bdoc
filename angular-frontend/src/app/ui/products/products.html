@@ -15,7 +15,7 @@
                     <span class="check-icon">✓</span>
                     <span class="feedback-text">
                         Added to Cart
-                        <span *ngIf="getCartCount(product) > 1" class="count-badge">* {{ getCartCount(product) }}</span>
+                        <span *ngIf="getCartCount(product) > 1" class="count-badge">x{{ getCartCount(product) }}</span>
                     </span>
                 </div>
             </div>
@@ -31,8 +31,5 @@
             <p>Loading products...</p>
         </div>
     </ng-template>
-
-    <!-- We handle empty state inside the product-grid logic if needed, or check length if observable emits -->
-
 
 </div>

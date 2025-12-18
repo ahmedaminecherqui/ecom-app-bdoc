@@ -32,7 +32,7 @@ Useful for debugging individual services bypassing the gateway.
 
 - **Customer Service**: [http://localhost:8081/api/customers](http://localhost:8081/api/customers)
 - **Inventory Service**: [http://localhost:8082/api/products](http://localhost:8082/api/products)
-- **Billing Service (Get Bill 1)**: [http://localhost:8083/bills/1](http://localhost:8083/bills/1)
+- **Billing Service (Get Bill 1)**: [http://localhost:8083/api/bills/1](http://localhost:8083/api/bills/1)
 
 ## Gateway Configuration
 

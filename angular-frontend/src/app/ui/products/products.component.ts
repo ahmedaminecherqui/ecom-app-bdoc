@@ -28,6 +28,6 @@ export class ProductsComponent implements OnInit {
   }
 
   getCartCount(product: Product): number {
-    return this.cartService.getQuantity(product.id);
+    return this.cartService.getQuantity(product);
   }
 }

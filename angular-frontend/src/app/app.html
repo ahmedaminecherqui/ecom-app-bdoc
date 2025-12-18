@@ -46,7 +46,7 @@
     </header>
 
     <div class="content-wrapper">
-      <router-outlet></router-outlet>
+      <router-outlet *ngIf="isLoggedIn"></router-outlet>
 
       <!-- Guest Landing Page -->
       <div *ngIf="!isLoggedIn" class="landing-hero">

@@ -12,9 +12,15 @@ export class BillingService {
     constructor(private http: HttpClient) { }
 
     getAllBills(): Observable<Bill[]> {
-        return this.http.get<PagedBillResponse>(this.apiUrl).pipe(
-            map(response => response._embedded.bills)
-        );
+        return this.http.get<Bill[]>(`${this.apiUrl}/fullBills`);
+    }
+
+    getBillsByCustomer(customerId: number): Observable<Bill[]> {
+        return this.http.get<Bill[]>(`${this.apiUrl}/customer/${customerId}`);
+    }
+
+    createBill(orderData: any): Observable<Bill> {
+        return this.http.post<Bill>(`${this.apiUrl}/full`, orderData);
     }
 
     getBillDetails(id: number): Observable<Bill> {

@@ -3,6 +3,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { KeycloakService } from 'keycloak-angular';
 import { KeycloakProfile } from 'keycloak-js';
+import { CustomerService } from './services/customer.service';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +20,7 @@ export class App implements OnInit {
 
   constructor(
     private readonly keycloak: KeycloakService,
+    private customerService: CustomerService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -44,6 +46,26 @@ export class App implements OnInit {
       if (this.isLoggedIn) {
         this.userProfile = await this.keycloak.loadUserProfile();
         console.log('App Init: User Profile Loaded', this.userProfile);
+
+        // Provisioning: Ensure customer exists in DB
+        if (this.userProfile && this.userProfile.email) {
+          this.customerService.findCustomerByEmail(this.userProfile.email).subscribe({
+            next: (c) => console.log('App: Customer already exists in DB', c),
+            error: (err) => {
+              // If 404, the search returned no result (Data REST search returns 404 if not found)
+              if (err.status === 404) {
+                console.log('App: Customer not found. Provisioning new entry...');
+                this.customerService.createCustomer({
+                  name: `${this.userProfile?.firstName || ''} ${this.userProfile?.lastName || ''}`.trim() || this.userProfile?.username || 'New User',
+                  email: this.userProfile?.email
+                }).subscribe({
+                  next: (res) => console.log('App: Provisioning successful', res),
+                  error: (pErr) => console.error('App: Provisioning failed', pErr)
+                });
+              }
+            }
+          });
+        }
       }
     } catch (error) {
       console.error('App Init: Auth Check Failed', error);

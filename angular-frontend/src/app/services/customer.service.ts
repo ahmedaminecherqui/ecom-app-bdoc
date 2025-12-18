@@ -16,4 +16,12 @@ export class CustomerService {
             map(response => response._embedded.customers)
         );
     }
+
+    findCustomerByEmail(email: string): Observable<Customer> {
+        return this.http.get<Customer>(`${this.apiUrl}/search/findByEmail?email=${email}`);
+    }
+
+    createCustomer(customer: Partial<Customer>): Observable<Customer> {
+        return this.http.post<Customer>(this.apiUrl, customer);
+    }
 }

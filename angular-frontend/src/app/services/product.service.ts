@@ -13,7 +13,15 @@ export class ProductService {
 
     getAllProducts(): Observable<Product[]> {
         return this.http.get<PagedProductResponse>(this.apiUrl).pipe(
-            map(response => response._embedded.products)
+            map(response => {
+                console.log('ProductService raw response:', response);
+                const products = response._embedded.products;
+                console.log('Mapped products:', products);
+                if (products.length > 0) {
+                    console.log('First product ID:', products[0].id);
+                }
+                return products;
+            })
         );
     }
 }

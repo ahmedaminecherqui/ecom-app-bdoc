@@ -1,8 +1,13 @@
 <div class="cart-container">
-    <h2>Shopping Cart</h2>
+    <div class="notification-pill" *ngIf="notification.type" [class]="notification.type">
+        <span class="pill-icon">{{ notification.type === 'success' ? '✓' : '❌' }}</span>
+        <span class="pill-text">{{ notification.message }}</span>
+    </div>
 
-    <div class="cart-content" *ngIf="cartItems$ | async as items">
-        <div class="cart-items" *ngIf="items.length > 0; else emptyCart">
+    <h2>Your Shopping Cart</h2>
+
+    <div class="cart-content" *ngIf="cartItems">
+        <div class="cart-items" *ngIf="cartItems.length > 0; else emptyCart">
             <table class="cart-table">
                 <thead>
                     <tr>
@@ -14,7 +19,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let item of items">
+                    <tr *ngFor="let item of cartItems">
                         <td class="product-name">{{ item.product.name }}</td>
                         <td>{{ item.product.price | currency:'USD' }}</td>
                         <td>
@@ -35,7 +40,7 @@
                     <span>Total Amount:</span>
                     <span class="total-price">{{ total | currency:'USD' }}</span>
                 </div>
-                <button class="btn-checkout">Proceed to Checkout</button>
+                <button class="btn-checkout" (click)="checkout()">Proceed to Checkout</button>
             </div>
         </div>
 

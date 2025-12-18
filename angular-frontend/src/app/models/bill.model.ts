@@ -1,15 +1,15 @@
 export interface ProductItem {
     id: number;
-    productID: string;
-    price: number;
+    productId: string;
+    unitPrice: number;
     quantity: number;
-    productName?: string; // Enriched
+    product?: any; // Enriched (contains .name, .price, etc.)
 }
 
 export interface Bill {
     id: number;
     billingDate: string;
-    customerID: number;
+    customerId: number;
     productItems: ProductItem[];
     customer?: any; // Enriched
 }

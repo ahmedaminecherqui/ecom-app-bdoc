@@ -29,5 +29,3 @@ spring:
               uri: lb://BILLING-SERVICE
               predicates:
                   - Path=/api/bills/**
-              filters:
-                  - StripPrefix=1

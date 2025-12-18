@@ -1,12 +1,15 @@
-<div class="bills-container">
+<div class="bills-container" *ngIf="!loading; else loadingTpl">
     <h2>Orders & Bills</h2>
 
-    <div class="bills-list">
+    <div class="bills-list" *ngIf="bills && bills.length > 0; else noBills">
         <div *ngFor="let bill of bills" class="bill-card">
             <div class="bill-header" (click)="viewDetails(bill)">
                 <div class="bill-id">Order #{{ bill.id }}</div>
                 <div class="bill-date">{{ bill.billingDate | date:'mediumDate' }}</div>
-                <div class="bill-customer">Customer ID: {{ bill.customerID }}</div>
+                <div class="bill-customer">
+                    <span *ngIf="bill.customer">{{ bill.customer.name }} ({{ bill.customer.email }})</span>
+                    <span *ngIf="!bill.customer">Customer ID: {{ bill.customerId }}</span>
+                </div>
                 <div class="bill-action">
                     <span class="icon" *ngIf="selectedBill !== bill">👇</span>
                     <span class="icon" *ngIf="selectedBill === bill">👆</span>
@@ -19,7 +22,7 @@
                     <thead>
                         <tr>
                             <th>Item ID</th>
-                            <th>Product ID</th>
+                            <th>Product</th>
                             <th>Price</th>
                             <th>Qty</th>
                             <th>Total</th>
@@ -28,18 +31,29 @@
                     <tbody>
                         <tr *ngFor="let item of bill.productItems">
                             <td>{{ item.id }}</td>
-                            <td>{{ item.productID }}</td>
-                            <td>{{ item.price | currency:'USD' }}</td>
+                            <td>
+                                <span *ngIf="item.product">{{ item.product.name }}</span>
+                                <span *ngIf="!item.product">#{{ item.productId }}</span>
+                            </td>
+                            <td>{{ item.unitPrice | currency:'USD' }}</td>
                             <td>{{ item.quantity }}</td>
-                            <td>{{ (item.price * item.quantity) | currency:'USD' }}</td>
+                            <td>{{ (item.unitPrice * item.quantity) | currency:'USD' }}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
+    </div>
 
-        <div *ngIf="bills.length === 0" class="no-bills">
+    <ng-template #noBills>
+        <div class="no-bills">
             <p>No bills found.</p>
         </div>
-    </div>
+    </ng-template>
 </div>
+
+<ng-template #loadingTpl>
+    <div class="no-bills">
+        <p>Loading your bills...</p>
+    </div>
+</ng-template>

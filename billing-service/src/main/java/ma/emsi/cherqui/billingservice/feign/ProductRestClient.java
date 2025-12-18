@@ -6,7 +6,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "inventory-service")
+@FeignClient(name = "INVENTORY-SERVICE")
 public interface ProductRestClient {
     @GetMapping("/api/products/{id}")
     public Product getProductById(@PathVariable("id") String id);
