@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { Product } from '../../models/product.model';
@@ -16,11 +16,17 @@ export class ProductsComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
-    private cartService: CartService
+    private cartService: CartService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
     this.products$ = this.productService.getAllProducts();
+
+    // Subscribe to cart updates to force UI refresh for quantities
+    this.cartService.cart$.subscribe(() => {
+      this.cdr.detectChanges();
+    });
   }
 
   addToCart(product: Product) {

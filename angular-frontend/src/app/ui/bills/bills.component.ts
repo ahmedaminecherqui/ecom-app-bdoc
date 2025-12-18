@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Bill } from '../../models/bill.model';
 import { BillingService } from '../../services/billing.service';
@@ -19,7 +19,8 @@ export class BillsComponent implements OnInit {
   constructor(
     private billingService: BillingService,
     private keycloakService: KeycloakService,
-    private customerService: CustomerService
+    private customerService: CustomerService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   async ngOnInit(): Promise<void> {
@@ -31,6 +32,7 @@ export class BillsComponent implements OnInit {
       if (!userEmail) {
         console.error('BillsComponent: Email missing in user profile');
         this.loading = false;
+        this.cdr.detectChanges();
         return;
       }
 
@@ -43,11 +45,13 @@ export class BillsComponent implements OnInit {
         error: (err) => {
           console.error('BillsComponent: Customer not found. Defaulting to show no bills.', err);
           this.loading = false;
+          this.cdr.detectChanges();
         }
       });
     } catch (err) {
       console.error('BillsComponent: Failed to load user profile', err);
       this.loading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -65,11 +69,13 @@ export class BillsComponent implements OnInit {
           this.bills = [];
         }
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('BillsComponent: Error fetching bills!', err);
         this.bills = [];
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }

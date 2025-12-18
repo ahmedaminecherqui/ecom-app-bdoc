@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
@@ -23,7 +23,8 @@ export class CartComponent implements OnInit {
     private billingService: BillingService,
     private keycloakService: KeycloakService,
     private customerService: CustomerService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     // No longer directly assigning cartItems$ here, using subscription in ngOnInit
   }
@@ -33,6 +34,7 @@ export class CartComponent implements OnInit {
       console.log('CartComponent: Cart state updated', items);
       this.cartItems = items;
       this.total = this.cartService.getTotal();
+      this.cdr.detectChanges();
     });
   }
 
@@ -98,8 +100,10 @@ export class CartComponent implements OnInit {
 
   showNotification(message: string, type: 'success' | 'error') {
     this.notification = { message, type };
+    this.cdr.detectChanges();
     setTimeout(() => {
       this.notification = { message: '', type: null };
+      this.cdr.detectChanges();
     }, 4000);
   }
 }
