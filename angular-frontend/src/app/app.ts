@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { KeycloakService } from 'keycloak-angular';
 import { KeycloakProfile } from 'keycloak-js';
 import { CustomerService } from './services/customer.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +22,7 @@ export class App implements OnInit {
   constructor(
     private readonly keycloak: KeycloakService,
     private customerService: CustomerService,
+    public authService: AuthService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -31,7 +33,6 @@ export class App implements OnInit {
   public async ngOnInit() {
     console.log('App Init: Starting Auth Check...');
     try {
-      // Race between auth check and a 3-second timeout
       const isLoggedInPromise = this.keycloak.isLoggedIn();
       const timeoutPromise = new Promise<boolean>((resolve) =>
         setTimeout(() => {
@@ -47,17 +48,31 @@ export class App implements OnInit {
         this.userProfile = await this.keycloak.loadUserProfile();
         console.log('App Init: User Profile Loaded', this.userProfile);
 
-        // Provisioning: Ensure customer exists in DB
-        if (this.userProfile && this.userProfile.email) {
-          this.customerService.findCustomerByEmail(this.userProfile.email).subscribe({
+        let email = this.userProfile.email;
+        let adminDetected = false;
+        if (email && email.toUpperCase().startsWith('ADMIN--')) {
+          adminDetected = true;
+          email = email.substring(7); // Remove 'ADMIN--'
+          console.log('%c [RBAC] ADMIN DETECTED!', 'background: #222; color: #bada55; font-size: 20px;');
+          console.log('Normalized email:', email);
+        } else {
+          console.log('%c [RBAC] NORMAL CUSTOMER DETECTED', 'background: #222; color: #ff0000; font-size: 20px;');
+          console.log('Email:', email);
+        }
+
+        console.log('App: Setting Auth Data in AuthService...', { adminDetected, email });
+        this.authService.setAuthData(this.userProfile, adminDetected, email || null);
+
+        // Provisioning: Ensure customer exists in DB with normalized email
+        if (email) {
+          this.customerService.findCustomerByEmail(email).subscribe({
             next: (c) => console.log('App: Customer already exists in DB', c),
             error: (err) => {
-              // If 404, the search returned no result (Data REST search returns 404 if not found)
               if (err.status === 404) {
                 console.log('App: Customer not found. Provisioning new entry...');
                 this.customerService.createCustomer({
                   name: `${this.userProfile?.firstName || ''} ${this.userProfile?.lastName || ''}`.trim() || this.userProfile?.username || 'New User',
-                  email: this.userProfile?.email
+                  email: email
                 }).subscribe({
                   next: (res) => console.log('App: Provisioning successful', res),
                   error: (pErr) => console.error('App: Provisioning failed', pErr)
@@ -71,8 +86,7 @@ export class App implements OnInit {
       console.error('App Init: Auth Check Failed', error);
     } finally {
       this.loading = false;
-      console.log('App Init: Loading set to false');
-      this.cdr.detectChanges(); // Force UI update
+      this.cdr.detectChanges();
     }
   }
 

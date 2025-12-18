@@ -1,5 +1,11 @@
 <div class="bills-container" *ngIf="!loading; else loadingTpl">
-    <h2>Orders & Bills</h2>
+    <div class="header-actions">
+        <h2>Orders & Bills</h2>
+        <div class="filter-context" *ngIf="route.snapshot.queryParamMap.get('customerId')">
+            <span>Viewing bills for Customer #{{ route.snapshot.queryParamMap.get('customerId') }}</span>
+            <button class="btn-clear" routerLink="/bills">Clear Filter</button>
+        </div>
+    </div>
 
     <div class="bills-list" *ngIf="bills && bills.length > 0; else noBills">
         <div *ngFor="let bill of bills" class="bill-card">

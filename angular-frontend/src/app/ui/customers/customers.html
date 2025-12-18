@@ -1,5 +1,28 @@
-<div class="customers-container">
-    <h2>Customers Registry</h2>
+<div class="customers-container" *ngIf="!loading; else loadingTpl">
+    <div class="header-actions">
+        <h2>Customers Registry</h2>
+        <button *ngIf="authService.isAdmin()" class="btn btn-primary" (click)="toggleAddForm()">+ Register
+            Customer</button>
+    </div>
+
+    <!-- Admin Form -->
+    <div class="form-overlay" *ngIf="showForm">
+        <div class="form-container">
+            <h3>{{ editingCustomer?.id ? 'Edit Customer' : 'Add New Customer' }}</h3>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" [(ngModel)]="editingCustomer!.name" placeholder="Full Name">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" [(ngModel)]="editingCustomer!.email" placeholder="Email Address">
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" (click)="cancelEdit()">Cancel</button>
+                <button class="btn btn-primary" (click)="saveCustomer()">Save</button>
+            </div>
+        </div>
+    </div>
 
     <div class="table-container">
         <table class="data-table">
@@ -17,7 +40,16 @@
                     <td>{{ customer.name }}</td>
                     <td>{{ customer.email }}</td>
                     <td>
-                        <button class="btn-action">Edit</button>
+                        <div class="action-buttons">
+                            <button class="btn-action view" (click)="viewCustomerBills(customer)"
+                                title="View Billings">📄</button>
+                            <ng-container *ngIf="authService.isAdmin()">
+                                <button class="btn-action edit" (click)="editCustomer(customer)"
+                                    title="Edit">✏️</button>
+                                <button class="btn-action delete" (click)="deleteCustomer(customer)"
+                                    title="Delete">🗑️</button>
+                            </ng-container>
+                        </div>
                     </td>
                 </tr>
                 <tr *ngIf="customers.length === 0">
@@ -27,3 +59,11 @@
         </table>
     </div>
 </div>
+
+<ng-template #loadingTpl>
+    <div class="customers-container">
+        <div class="no-data">
+            <p>Loading registry...</p>
+        </div>
+    </div>
+</ng-template>
