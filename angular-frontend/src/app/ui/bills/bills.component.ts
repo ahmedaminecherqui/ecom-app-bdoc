@@ -115,4 +115,19 @@ export class BillsComponent implements OnInit {
   viewDetails(bill: Bill) {
     this.selectedBill = this.selectedBill === bill ? null : bill;
   }
+
+  publishEvent(bill: Bill) {
+    if (!bill.id) return;
+
+    this.billingService.publishBillEvent(bill.id).subscribe({
+      next: (res) => {
+        console.log('Event published successfully', res);
+        alert(`Event for Bill ${bill.id} published to Kafka!`);
+      },
+      error: (err) => {
+        console.error('Failed to publish event', err);
+        alert('Failed to publish event. Check console for details.');
+      }
+    });
+  }
 }

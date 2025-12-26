@@ -25,7 +25,9 @@ export class BillingService {
 
     getBillDetails(id: number): Observable<Bill> {
         return this.http.get<Bill>(`${this.apiUrl}/${id}/productItems`);
-        // Note: The backend likely returns the Bill with items or just items depending on projection. 
-        // For now assuming we get the full bill from somewhere, but let's stick to list first.
+    }
+
+    publishBillEvent(billId: number): Observable<any> {
+        return this.http.get(`${this.apiUrl}/publishEvent/${billId}`);
     }
 }
