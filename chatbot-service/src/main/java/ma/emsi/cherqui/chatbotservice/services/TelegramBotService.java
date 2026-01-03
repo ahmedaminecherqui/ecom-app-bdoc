@@ -48,7 +48,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             }
 
             try {
-                String response = ragService.ask(messageText);
+                String response = ragService.ask(String.valueOf(chatId), messageText);
                 sendResponse(chatId, response);
             } catch (Exception e) {
                 sendResponse(chatId, "I encountered an error: " + e.getMessage());

@@ -5,10 +5,11 @@ import { KeycloakService } from 'keycloak-angular';
 import { KeycloakProfile } from 'keycloak-js';
 import { CustomerService } from './services/customer.service';
 import { AuthService } from './services/auth.service';
+import { ChatbotComponent } from './ui/chatbot/chatbot.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, CommonModule, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, CommonModule, RouterLink, RouterLinkActive, ChatbotComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

@@ -1,0 +1,37 @@
+<div class="chatbot-container" [class.open]="isOpen">
+    <!-- Floating Action Button -->
+    <button class="fab" (click)="toggleChat()" [title]="isOpen ? 'Close Chat' : 'Ask Assistant'">
+        <span *ngIf="!isOpen">💬</span>
+        <span *ngIf="isOpen">✖</span>
+    </button>
+
+    <!-- Chat Window -->
+    <div class="chat-window" *ngIf="isOpen">
+        <div class="chat-header">
+            <h3>AI Assistant</h3>
+            <button class="btn-close" (click)="toggleChat()">×</button>
+        </div>
+
+        <div class="chat-messages">
+            <div *ngFor="let msg of messages" class="message-wrapper" [class.user]="msg.isUser">
+                <div class="message">
+                    {{ msg.text }}
+                    <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
+                </div>
+            </div>
+            <div *ngIf="isLoading" class="message-wrapper">
+                <div class="message typing">
+                    Assistant is thinking...
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <input type="text" [(ngModel)]="query" (keyup.enter)="sendMessage()" placeholder="Ask a question..."
+                [disabled]="isLoading">
+            <button (click)="sendMessage()" [disabled]="isLoading || !query.trim()">
+                ➤
+            </button>
+        </div>
+    </div>
+</div>

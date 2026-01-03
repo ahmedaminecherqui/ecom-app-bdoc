@@ -2,6 +2,8 @@ package ma.emsi.cherqui.chatbotservice.services;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
@@ -25,13 +27,14 @@ public class RagService {
     private Resource pdfResource;
 
     public RagService(ChatClient.Builder chatClientBuilder, EmbeddingModel embeddingModel) {
-        this.chatClient = chatClientBuilder.build();
         this.vectorStore = new SimpleVectorStore(embeddingModel);
+        this.chatClient = chatClientBuilder
+                .defaultAdvisors(new MessageChatMemoryAdvisor(new InMemoryChatMemory()))
+                .build();
     }
 
     @PostConstruct
     public void init() {
-        // Asynchronously ingest the PDF on startup
         new Thread(() -> {
             try {
                 if (pdfResource.exists()) {
@@ -39,7 +42,7 @@ public class RagService {
                     ingestDocument(pdfResource);
                     System.out.println("Document ingestion completed successfully.");
                 } else {
-                    System.err.println("Default document cours.pdf not found in classpath:docs/");
+                    System.err.println("Default document Documentation.pdf not found in classpath:docs/");
                 }
             } catch (Exception e) {
                 System.err.println("Error during initial ingestion: " + e.getMessage());
@@ -62,16 +65,15 @@ public class RagService {
         }
     }
 
-    public String ask(String query) {
-        // 1. Retrieve similar documents
+    public String ask(String chatId, String query) {
         List<Document> similarDocuments = vectorStore.similaritySearch(query);
 
         String context = similarDocuments.stream()
                 .map(Document::getContent)
                 .collect(Collectors.joining("\n"));
 
-        // 2. Use ChatClient to generate response with context
         return chatClient.prompt()
+                .advisors(a -> a.param(MessageChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))
                 .system("You are a helpful assistant. Use the following context to answer the question. If you don't know, say so.\nContext:\n"
                         + context)
                 .user(query)
