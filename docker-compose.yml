@@ -38,5 +38,20 @@ services:
       # Cluster ID generated using: bin/kafka-storage.sh random-uuid
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
 
+  chatbot-service:
+    build: ./chatbot-service
+    container_name: chatbot-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_CONFIG_IMPORT=configserver:http://config-service:9999
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME}
+    depends_on:
+      - discovery-service
+      - config-service
+
 volumes:
   keycloak_data:

@@ -29,3 +29,8 @@ spring:
               uri: lb://BILLING-SERVICE
               predicates:
                   - Path=/api/bills/**
+
+            - id: r4
+              uri: lb://CHATBOT-SERVICE
+              predicates:
+                  - Path=/api/chatbot/**

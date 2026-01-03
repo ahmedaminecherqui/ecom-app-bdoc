@@ -1,0 +1,177 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=0.8in}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+
+\title{E-Commerce Microservices Platform: Comprehensive Technical \& Functional Documentation}
+\author{Knowledge Base for AI Assistant}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+This document serves as the primary knowledge base for the RAG-based AI assistant. It details the architecture, service logic, data models, and user workflows of the E-Commerce Microservices Platform. The platform is designed for high scalability, fault tolerance, and secure transaction management.
+
+\section{System Architecture \& Infrastructure}
+The platform follows a classic microservices pattern using the Spring Cloud ecosystem.
+
+\subsection{Infrastructure Services}
+\begin{itemize}
+    \item \textbf{Discovery Service (Netflix Eureka)}: 
+    \begin{itemize}
+        \item \textbf{Port}: 8761.
+        \item \textbf{Role}: Service registry. Every microservice instances register their network location on startup.
+        \item \textbf{Client Configuration}: Services use \texttt{spring-cloud-starter-netflix-eureka-client}.
+    \end{itemize}
+    \item \textbf{Config Service}: 
+    \begin{itemize}
+        \item \textbf{Port}: 9999.
+        \item \textbf{Role}: Centralized configuration. It pulls configuration files from the \texttt{config-repo} directory.
+        \item \textbf{Import Mechanism}: Services use \texttt{spring.config.import=configserver:http://localhost:9999}.
+    \end{itemize}
+    \item \textbf{API Gateway (Spring Cloud Gateway)}: 
+    \begin{itemize}
+        \item \textbf{Port}: 8888.
+        \item \textbf{Role}: Single entry point. It handles load balancing (\texttt{lb://}) and cross-cutting concerns like security verification.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Message Broker (Kafka)}
+The system uses Kafka for asynchronous communication and real-time analytics. 
+\begin{itemize}
+    \item \textbf{Broker}: Runs on port 9092.
+    \item \textbf{Topics}: Specifically handles topics for \texttt{BillEvents}.
+\end{itemize}
+
+\section{Security Implementation}
+\subsection{Identity and Access Management (Keycloak)}
+Keycloak manages authentication and authorization.
+\begin{itemize}
+    \item \textbf{Realm}: \texttt{ecom-realm}.
+    \item \textbf{Resource Server}: The Gateway validates JWT tokens issued by Keycloak.
+\end{itemize}
+
+\subsection{User Roles}
+\begin{itemize}
+    \item \textbf{ADMIN}: Access to all management endpoints, including customer lists and inventory editing.
+    \item \textbf{CUSTOMER}: Restricted to browsing products, managing their cart, and viewing their own bills.
+\end{itemize}
+
+\section{Microservice Deep-Dive}
+
+\subsection{Customer Service (Port 8081)}
+\begin{itemize}
+    \item \textbf{Entity}: \texttt{Customer} (id, name, email).
+    \item \textbf{Logic}: Uses Spring Data REST to automatically expose repositories.
+    \item \textbf{Projections}: Defines \texttt{CustomerProjection} and \texttt{CustomerProjectionEmail} for tailored API responses.
+    \item \textbf{Endpoints}: 
+    \begin{itemize}
+        \item \texttt{GET /api/customers}: Retrieves all customers.
+        \item \texttt{GET /api/customers/\{id\}}: Retrieves a specific customer.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Inventory Service (Port 8082)}
+\begin{itemize}
+    \item \textbf{Entity}: \texttt{Product} (id [String], name, price, quantity).
+    \item \textbf{Logic}: Manages stock. In real-world scenarios, it would decrease quantity upon order fulfillment.
+    \item \textbf{Endpoints}: 
+    \begin{itemize}
+        \item \texttt{GET /api/products}: Standard product catalog.
+        \item \texttt{PUT/PATCH /api/products/\{id\}}: Used by admins to update stock or details.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Billing Service (Port 8083)}
+The core transactional service.
+\begin{itemize}
+    \item \textbf{Logic}: Orchestrates order creation.
+    \item \textbf{Order Creation Workflow}:
+    \begin{enumerate}
+        \item Receives a \texttt{POST /api/bills/full} with \texttt{OrderRequest}.
+        \item Validates the request (non-empty items).
+        \item Saves a new \texttt{Bill} entity.
+        \item Iterates through items to create \texttt{ProductItem} records linked to the bill.
+        \item \textbf{Enrichment}: Uses OpenFeign clients to fetch customer and product details from their respective services to return a "full" object to the user.
+    \end{enumerate}
+    \item \textbf{Feing Clients}: \texttt{CustomerRestClient} and \texttt{ProductRestClient}.
+\end{itemize}
+
+\subsection{Analytics Service}
+Real-time stream processing service.
+\begin{itemize}
+    \item \textbf{Technology}: Spring Cloud Stream with Kafka Streams binder.
+    \item \textbf{Logic}: Implements \texttt{billCounter} function.
+    \item \textbf{Process}: 
+    \begin{itemize}
+        \item Consumes \texttt{BillEvent} records.
+        \item Groups them by \texttt{customerId}.
+        \item Maintains a persistent state store named \texttt{bill-counts} for live tracking.
+    \end{itemize}
+\end{itemize}
+
+\section{Frontend Application (Angular)}
+Detailed breakdown of the user interface functionality.
+
+\subsection{Navigation Component (\texttt{app.html})}
+The application layout uses a dynamic sidebar and a primary content area.
+\begin{itemize}
+    \item \textbf{Sidebar Features}:
+    \begin{itemize}
+        \item \textbf{Visibility}: Only shown to \texttt{isLoggedIn} users.
+        \item \textbf{Collapsible}: Users can toggle the sidebar width.
+        \item \textbf{Identity}: Displays the current user's profile and identifies their role (ADMIN/CUSTOMER).
+    \end{itemize}
+\end{itemize}
+
+\subsection{Route Protection and Navigation}
+\begin{itemize}
+    \item \textbf{Products (\texttt{/products})}: Publicly browsable catalog.
+    \item \textbf{Customers (\texttt{/customers})}: \textbf{Admin only} route.
+    \item \textbf{Bills (\texttt{/bills})}: Shows order history.
+    \item \textbf{Cart (\texttt{/cart})}: \textbf{Customer only} route for managing selections.
+\end{itemize}
+
+\section{Practical User Guide: How-To Steps}
+
+\subsection{Starting a Session}
+1. Click "Login" in the top bar or landing hero.
+2. You will be redirected to Keycloak for secure authentication.
+3. Upon return, the sidebar will appear, providing access to authorized services.
+
+\subsection{Managing Products (For Admins)}
+- Navigate to "Products".
+- Use the provided forms to update stock quantities or modify product pricing.
+
+\subsection{Ordering Workflow (For Customers)}
+1. \textbf{Selection}: Browse products and add desired items to the cart.
+2. \textbf{Cart Review}: Go to the "Cart" page. Verify quantities and the total amount.
+3. \textbf{Checkout}: Proceed with the order. This triggers the Billing Service transaction.
+4. \textbf{Confirmation}: Navigate to "Bills" to see your newly generated invoice.
+
+\subsection{Analyzing Data (Internal)}
+- Access the Analytics service endpoints to view aggregated bill counts per customer.
+- Use the Eureka dashboard (\texttt{:8761}) to ensure all services are healthy.
+
+\section{Troubleshooting and Configuration}
+\begin{itemize}
+    \item \textbf{Service Down}: Check the Eureka dashboard. If a service is missing, ensure it's started and pointing to the correct Config Server.
+    \item \textbf{401/403 Errors}: Verify the Keycloak token. Session expiry might require a re-login.
+    \item \textbf{Empty Bills}: Check if the Inventory or Customer service is reachable from the Billing service via Feign.
+\end{itemize}
+
+\end{document}
