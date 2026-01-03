@@ -17,9 +17,6 @@
                     <span *ngIf="!bill.customer">Customer ID: {{ bill.customerId }}</span>
                 </div>
                 <div class="bill-action">
-                    <button class="btn-stream" (click)="publishEvent(bill); $event.stopPropagation()">
-                        📡 Stream Event
-                    </button>
                     <span class="icon" *ngIf="selectedBill !== bill">👇</span>
                     <span class="icon" *ngIf="selectedBill === bill">👆</span>
                 </div>

@@ -7,6 +7,7 @@ import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.springframework.context.annotation.Bean;
+import org.springframework.kafka.support.serializer.JsonSerde;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Function;
@@ -18,7 +19,7 @@ public class BillAnalyticsService {
     public Function<KStream<String, BillEvent>, KStream<String, Long>> billCounter() {
         return input -> input
                 .map((k, v) -> new KeyValue<>(String.valueOf(v.getCustomerId()), v))
-                .groupByKey(Grouped.with(Serdes.String(), Serdes.JavaSerialization(BillEvent.class)))
+                .groupByKey(Grouped.with(Serdes.String(), new JsonSerde<>(BillEvent.class)))
                 .count(Materialized.as("bill-counts"))
                 .toStream();
     }

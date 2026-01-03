@@ -1,9 +1,11 @@
 package ma.emsi.cherqui.billingservice.web;
 
 import ma.emsi.cherqui.billingservice.entities.Bill;
-import ma.emsi.cherqui.billingservice.feign.CustomerRestClient;
-import ma.emsi.cherqui.billingservice.feign.ProductRestClient;
+import ma.emsi.cherqui.billingservice.model.BillEvent;
 import ma.emsi.cherqui.billingservice.repository.BillRepository;
+import ma.emsi.cherqui.billingservice.feign.ProductRestClient;
+import ma.emsi.cherqui.billingservice.feign.CustomerRestClient;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ma.emsi.cherqui.billingservice.entities.ProductItem;
@@ -24,6 +26,8 @@ public class BillRestController {
     private CustomerRestClient customerRestClient;
     @Autowired
     private ProductItemRepository productItemRepository;
+    @Autowired
+    private StreamBridge streamBridge;
 
     @PostMapping(path = "/api/bills/full")
     public Bill saveBill(@RequestBody OrderRequest orderRequest) {
@@ -50,6 +54,23 @@ public class BillRestController {
         });
 
         System.out.println("Bill " + savedBill.getId() + " saved. Attempting enrichment...");
+
+        // Automate Kafka Event Publishing
+        try {
+            double total = orderRequest.getItems().stream()
+                    .mapToDouble(i -> i.getUnitPrice() * i.getQuantity())
+                    .sum();
+            BillEvent billEvent = BillEvent.builder()
+                    .id(savedBill.getId())
+                    .billingDate(savedBill.getBillingDate())
+                    .customerId(savedBill.getCustomerId())
+                    .totalAmount(total)
+                    .build();
+            streamBridge.send("bill-topic", billEvent);
+            System.out.println("Kafka Event published automatically for Bill " + savedBill.getId());
+        } catch (Exception e) {
+            System.err.println("Failed to publish Kafka event automatically: " + e.getMessage());
+        }
 
         try {
             // Attempt to enrich data but don't fail the whole request if a service is down

@@ -14,7 +14,7 @@
 	<name>analytics-service</name>
 	<description>analytics-service</description>
 	<properties>
-		<java.version>21</java.version>
+		<java.version>17</java.version>
 		<spring-cloud.version>2025.0.0</spring-cloud.version>
 	</properties>
 	<dependencies>
@@ -29,6 +29,18 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-stream-binder-kafka-streams</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.rocksdb</groupId>
+					<artifactId>rocksdbjni</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- Explicitly adding a stable version to bypass resolution issues -->
+		<dependency>
+			<groupId>org.rocksdb</groupId>
+			<artifactId>rocksdbjni</artifactId>
+			<version>8.6.7</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>

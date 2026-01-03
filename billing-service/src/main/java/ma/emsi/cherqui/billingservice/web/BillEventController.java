@@ -18,7 +18,7 @@ public class BillEventController {
         this.billRepository = billRepository;
     }
 
-    @GetMapping("/publishEvent/{id}")
+    @GetMapping("/api/bills/publishEvent/{id}")
     public Bill publishEvent(@PathVariable Long id) {
         Bill bill = billRepository.findById(id).get();
         BillEvent billEvent = BillEvent.builder()
