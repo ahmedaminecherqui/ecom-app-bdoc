@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: chatbot-service
+  config:
+    import: "configserver:http://localhost:9999"
+  cloud:
+    config:
+      fail-fast: true
+      retry:
+        initial-interval: 2000
+        max-interval: 10000
+        multiplier: 1.5
+        max-attempts: 5
