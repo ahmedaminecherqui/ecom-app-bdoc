@@ -20,7 +20,16 @@ public class ChatRestController {
     public Map<String, String> chat(@RequestBody Map<String, String> request) {
         String query = request.get("query");
         String chatId = request.getOrDefault("chatId", "default-user");
-        String response = ragService.ask(chatId, query);
-        return Map.of("response", response);
+        System.out.println("Received chat request from " + chatId + ": " + query);
+
+        try {
+            String response = ragService.ask(chatId, query);
+            System.out.println("Assistant responded successfully.");
+            return Map.of("response", response != null ? response : "I'm sorry, I couldn't generate a response.");
+        } catch (Exception e) {
+            System.err.println("Chatbot error: " + e.getMessage());
+            e.printStackTrace();
+            return Map.of("response", "Error: " + e.getMessage());
+        }
     }
 }

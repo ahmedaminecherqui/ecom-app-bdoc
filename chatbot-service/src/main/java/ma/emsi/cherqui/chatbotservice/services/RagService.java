@@ -66,18 +66,32 @@ public class RagService {
     }
 
     public String ask(String chatId, String query) {
-        List<Document> similarDocuments = vectorStore.similaritySearch(query);
+        System.out.println("Querying vector store for: " + query);
+        List<Document> similarDocuments;
+        try {
+            similarDocuments = vectorStore.similaritySearch(query);
+            System.out.println("Found " + similarDocuments.size() + " similar documents.");
+        } catch (Exception e) {
+            System.err.println("Vector search failed: " + e.getMessage());
+            similarDocuments = List.of();
+        }
 
         String context = similarDocuments.stream()
                 .map(Document::getContent)
                 .collect(Collectors.joining("\n"));
 
-        return chatClient.prompt()
-                .advisors(a -> a.param(MessageChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))
-                .system("You are a helpful assistant. Use the following context to answer the question. If you don't know, say so.\nContext:\n"
-                        + context)
-                .user(query)
-                .call()
-                .content();
+        System.out.println("Calling OpenAI Chat Client...");
+        try {
+            return chatClient.prompt()
+                    .advisors(a -> a.param(MessageChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY, chatId))
+                    .system("You are a helpful assistant. Use the following context to answer the question. If you don't know, say so.\nContext:\n"
+                            + context)
+                    .user(query)
+                    .call()
+                    .content();
+        } catch (Exception e) {
+            System.err.println("OpenAI call failed: " + e.getMessage());
+            throw new RuntimeException("AI Model Error: " + e.getMessage());
+        }
     }
 }
